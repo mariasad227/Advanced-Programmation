@@ -1,0 +1,422 @@
+/* --- :root (CSS Variables) for Theming --- */
+:root {
+    --font-main: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    
+    /* Default: Blue Accent, Light Mode */
+    --color-accent: #3498db;
+    --color-accent-dark: #2980b9;
+    --color-bg: #f4f7f6;
+    --color-card: #ffffff;
+    --color-text: #333;
+    --color-text-light: #555;
+    --color-border: #dfe6e9;
+    --color-shadow: rgba(0,0,0,0.05);
+    
+    --color-nav-bg: rgba(52, 73, 94, 0.85); /* Navbar background */
+    --color-nav-text: #ffffff;
+    --color-highlight-bg: #ecf0f1;
+    --color-highlight-text: #34495e;
+    
+    --color-danger: #e74c3c;
+    --color-danger-dark: #c0392b;
+    --color-secondary: #95a5a6;
+    --color-secondary-dark: #7f8c8d;
+}
+
+/* --- Dark Mode Theme --- */
+body.dark-mode {
+    --color-bg: #2c3e50;
+    --color-card: #34495e;
+    --color-text: #ecf0f1;
+    --color-text-light: #bdc3c7;
+    --color-border: #4a6583;
+    --color-shadow: rgba(0,0,0,0.15);
+    
+    --color-nav-bg: rgba(44, 62, 80, 0.85); /* Darker navbar */
+    --color-nav-text: #ecf0f1;
+    --color-highlight-bg: #ecf0f1;
+    --color-highlight-text: #2c3e50;
+}
+
+/* --- Accent Color Themes (Overrides) --- */
+body[data-theme="green"] {
+    --color-accent: #2ecc71;
+    --color-accent-dark: #27ae60;
+}
+body[data-theme="purple"] {
+    --color-accent: #9b59b6;
+    --color-accent-dark: #8e44ad;
+}
+body[data-theme="orange"] {
+    --color-accent: #e67e22;
+    --color-accent-dark: #d35400;
+}
+/* For active blue, we just re-state it */
+body[data-theme="blue"] {
+    --color-accent: #3498db;
+    --color-accent-dark: #2980b9;
+}
+
+
+/* --- Global Styles --- */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: var(--font-main);
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    line-height: 1.6;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+main {
+    padding-top: 2rem;
+    /* NEW: Add perspective for 3D card tilt */
+    perspective: 1500px;
+}
+
+h1, h2 {
+    margin-bottom: 1rem;
+    color: var(--color-text);
+    font-weight: 700;
+}
+
+h1 { font-size: 1.75rem; }
+h2 { font-size: 1.5rem; }
+
+/* --- (Exercise 3) Navbar Styles (Frosted Glass) --- */
+.navbar {
+    background-color: var(--color-nav-bg);
+    /* NEW: Frosted glass effect */
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    
+    color: var(--color-nav-text);
+    padding: 1rem 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.navbar .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.navbar ul {
+    list-style-type: none;
+    display: flex;
+}
+
+.navbar li {
+    margin-left: 20px;
+}
+
+.navbar a {
+    color: var(--color-nav-text);
+    text-decoration: none;
+    font-weight: 500;
+    padding: 5px 10px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.navbar a:hover {
+    background-color: rgba(255,255,255,0.1);
+}
+
+.navbar a.nav-highlight {
+    font-weight: 700;
+    color: var(--color-accent); /* Uses theme color! */
+}
+
+.navbar a.active {
+    background-color: var(--color-highlight-bg);
+    color: var(--color-highlight-text);
+    font-weight: 700;
+}
+
+.navbar a.nav-highlight.active {
+    color: var(--color-accent);
+}
+
+
+/* --- NEW: 3D Card Style --- */
+.card {
+    background-color: var(--color-card);
+    border-radius: 12px;
+    box-shadow: 0 5px 15px var(--color-shadow);
+    border: 1px solid var(--color-border);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    overflow-x: auto; 
+    scroll-margin-top: 100px;
+    
+    /* NEW: 3D Tilt & Fade-in Animation */
+    opacity: 0;
+    transform: translateY(20px);
+    transition: background-color 0.3s ease, 
+                border-color 0.3s ease, 
+                box-shadow 0.4s ease, 
+                transform 0.4s ease,
+                opacity 0.5s ease;
+}
+
+/* NEW: Card hover effect */
+.card:hover {
+    transform: translateY(-5px) rotateY(3deg);
+    box-shadow: 0 12px 25px var(--color-shadow);
+}
+
+/* NEW: Card fade-in animation trigger */
+.card.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+
+/* --- (Exercise 1) Table Styles --- */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+th, td {
+    border-bottom: 1px solid var(--color-border);
+    padding: 12px 15px;
+    text-align: left;
+    vertical-align: middle;
+}
+
+thead {
+    background-color: transparent;
+}
+
+th {
+    font-weight: 600;
+    color: var(--color-text-light);
+}
+
+tbody tr:hover {
+    background-color: rgba(0,0,0,0.02);
+}
+
+/* Dark mode table row hover */
+body.dark-mode tbody tr:hover {
+    background-color: rgba(255,255,255,0.03);
+}
+
+input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--color-accent);
+}
+
+/* --- (Exercise 2) Form Styles --- */
+.form-group {
+    margin-bottom: 1.25rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: var(--color-text-light);
+}
+
+.form-group input[type="text"],
+.form-group input[type="email"] {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 1rem;
+    border: 1px solid var(--color-border);
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    border-radius: 4px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-group input[type="text"]:focus,
+.form-group input[type="email"]:focus {
+    border-color: var(--color-accent);
+    outline: none;
+    box-shadow: 0 0 0 3px var(--color-accent-dark);
+}
+
+/* --- NEW: 3D "Push" Button Styles --- */
+.btn {
+    display: inline-block;
+    padding: 12px 20px;
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    color: #ffffff;
+    
+    /* 3D Effect */
+    background-color: var(--color-accent);
+    box-shadow: 0 4px 0 0 var(--color-accent-dark);
+    transform: translateY(0);
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.btn:hover {
+    transform: translateY(-2px); /* Lift on hover */
+    box-shadow: 0 6px 0 0 var(--color-accent-dark);
+}
+
+.btn:active {
+    transform: translateY(4px); /* PUSH DOWN */
+    box-shadow: 0 0 0 0 var(--color-accent-dark);
+}
+
+/* Button variants */
+.btn.btn-secondary {
+    background-color: var(--color-secondary);
+    box-shadow: 0 4px 0 0 var(--color-secondary-dark);
+}
+.btn.btn-secondary:hover { box-shadow: 0 6px 0 0 var(--color-secondary-dark); }
+.btn.btn-secondary:active { transform: translateY(4px); box-shadow: 0 0 0 0 var(--color-secondary-dark); }
+
+.btn.btn-danger {
+    background-color: var(--color-danger);
+    box-shadow: 0 4px 0 0 var(--color-danger-dark);
+}
+.btn.btn-danger:hover { box-shadow: 0 6px 0 0 var(--color-danger-dark); }
+.btn.btn-danger:active { transform: translateY(4px); box-shadow: 0 0 0 0 var(--color-danger-dark); }
+
+
+/* --- Report Section Styles --- */
+.report-stats {
+    display: flex;
+    gap: 1.5rem;
+    margin: 1.5rem 0;
+    flex-wrap: wrap; 
+}
+
+.stat-card {
+    flex: 1; 
+    min-width: 150px; 
+    background-color: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    text-align: center;
+}
+
+.stat-card h3 {
+    font-size: 1rem;
+    color: var(--color-text-light);
+    margin-bottom: 0.5rem;
+}
+
+.stat-card .stat-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--color-text);
+}
+
+/* --- NEW: Personalization Section Styles --- */
+.personalization-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+    margin-top: 1.5rem;
+    align-items: center;
+}
+.setting-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+.setting-item label {
+    font-weight: 600;
+    color: var(--color-text-light);
+}
+
+/* Toggle Switch */
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 28px;
+}
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.4s;
+    border-radius: 28px;
+}
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: 0.4s;
+    border-radius: 50%;
+}
+input:checked + .slider {
+    background-color: var(--color-accent);
+}
+input:checked + .slider:before {
+    transform: translateX(22px);
+}
+
+/* Color Swatches */
+.color-swatches {
+    display: flex;
+    gap: 0.5rem;
+}
+.swatch {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid var(--color-border);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.swatch:hover {
+    transform: scale(1.1);
+}
+.swatch.active {
+    border-color: var(--color-text);
+    box-shadow: 0 0 0 2px var(--color-card), 0 0 0 4px var(--color-text);
+}
+
+
+/* --- Footer Styles --- */
+footer {
+    text-align: center;
+    padding: 1.5rem 0;
+    background-color: var(--color-card);
+    color: var(--color-text-light);
+    border-top: 1px solid var(--color-border);
+    margin-top: 2rem;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
