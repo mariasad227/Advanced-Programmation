@@ -56,49 +56,101 @@
         </section>
 
         <section id="attendance-list" class="card">
-            <h2>Attendance List</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Student ID</th>
-                        <th>Last Name</th>
-                        <th>First Name</th>
-                        <th>Course</th>
-                        <th>Session date</th>
-                        <th>Present</th>
-                        <th>Participated</th>
-                    </tr>
-                </thead>
-                <tbody id="attendance-table-body">
-                    <tr>
-                        <td>21001</td>
-                        <td>ZIDANE</td>
-                        <td>Amine</td>
-                        <td>Advanced Web Prog.</td>
-                        <td>2025-10-24</td>
-                        <td><input type="checkbox" checked></td>
-                        <td><input type="checkbox" checked></td>
-                    </tr>
-                    <tr>
-                        <td>21002</td>
-                        <td>BOUALEM</td>
-                        <td>Fatima</td>
-                        <td>Advanced Web Prog.</td>
-                        <td>2025-10-24</td>
-                        <td><input type="checkbox" checked></td>
-                        <td><input type="checkbox"></td>
-                    </tr>
-                    <tr>
-                        <td>21003</td>
-                        <td>CHERIF</td>
-                        <td>Mehdi</td>
-                        <td>Advanced Web Prog.</td>
-                        <td>2025-10-24</td>
-                        <td><input type="checkbox"></td>
-                        <td><input type="checkbox"></td>
-                    </tr>
-                </tbody>
-            </table>
+            <h2>Attendance List (Summary)</h2>
+            <!-- Added wrapper for responsive scrolling on small screens -->
+            <div class="table-scroll-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Last Name</th>
+                            <th>First Name</th>
+                            <th colspan="6">Attendance (S)</th>
+                            <th colspan="6">Participation (P)</th>
+                            <th>Absences</th>
+                            <th>Particip.</th>
+                            <th>Message</th>
+                        </tr>
+                        <!-- Second header row for S1-S6/P1-P6 -->
+                        <tr class="session-labels">
+                            <th></th>
+                            <th></th>
+                            <th>S1</th><th>S2</th><th>S3</th><th>S4</th><th>S5</th><th>S6</th>
+                            <th>P1</th><th>P2</th><th>P3</th><th>P4</th><th>P5</th><th>P6</th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="attendance-table-body">
+                        <!-- Student 1: Expected: 2 Absences, 4 Participations -> Green Row -->
+                        <tr data-student-id="21001">
+                            <td>Ahmed</td>
+                            <td>Sara</td>
+                            <!-- Attendance (S): 2 Absent (S2, S4) -->
+                            <td><input type="checkbox" checked></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox" checked></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox" checked></td>
+                            <td><input type="checkbox" checked></td>
+                            <!-- Participation (P): 4 Yes (P1-P4) -->
+                            <td><input type="checkbox" checked></td>
+                            <td><input type="checkbox" checked></td>
+                            <td><input type="checkbox" checked></td>
+                            <td><input type="checkbox" checked></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td class="abs-count"></td>
+                            <td class="par-count"></td>
+                            <td class="message"></td>
+                        </tr>
+                        <!-- Student 2: Expected: 4 Absences, 2 Participations -> Yellow Row -->
+                        <tr data-student-id="21002">
+                            <td>Yacine</td>
+                            <td>Ali</td>
+                            <!-- Attendance (S): 4 Absent (S1, S2, S4, S5) -->
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox" checked></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox" checked></td>
+                            <!-- Participation (P): 2 Yes (P3, P6) -->
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox" checked></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox" checked></td>
+                            <td class="abs-count"></td>
+                            <td class="par-count"></td>
+                            <td class="message"></td>
+                        </tr>
+                        <!-- Student 3: Expected: 5 Absences, 1 Participation -> Red Row -->
+                        <tr data-student-id="21003">
+                            <td>Houcine</td>
+                            <td>Rania</td>
+                            <!-- Attendance (S): 5 Absent (S1-S5) -->
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox" checked></td>
+                            <!-- Participation (P): 1 Yes (P3) -->
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox" checked></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td><input type="checkbox"></td>
+                            <td class="abs-count"></td>
+                            <td class="par-count"></td>
+                            <td class="message"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </section>
 
         <section id="add-student" class="card">
@@ -108,24 +160,28 @@
                 <div class="form-group">
                     <label for="student-id">Student ID</label>
                     <input type="text" id="student-id" name="student_id" required>
+                    <!-- Error message will be inserted here by JS -->
                 </div>
                 
                 <div class="form-group">
                     <label for="last-name">Last Name</label>
                     <input type="text" id="last-name" name="last_name" required>
+                    <!-- Error message will be inserted here by JS -->
                 </div>
 
                 <div class="form-group">
                     <label for="first-name">First Name</label>
                     <input type="text" id="first-name" name="first_name" required>
+                    <!-- Error message will be inserted here by JS -->
                 </div>
 
                 <div class="form-group">
                     <label for="email">Email</label>
                     <input type="email" id="email" name="email" required>
+                    <!-- Error message will be inserted here by JS -->
                 </div>
 
-                <button type="submit" class="btn">Submit</button>
+                <button type="submit" class="btn">Add Student</button>
             </form>
         </section>
 
@@ -136,15 +192,15 @@
             <div class="report-stats">
                 <div class="stat-card">
                     <h3>Overall Attendance</h3>
-                    <div class="stat-value" id="attendance-stat">67%</div>
+                    <div class="stat-value" id="attendance-stat">N/A</div>
                 </div>
                 <div class="stat-card">
                     <h3>Total Students</h3>
-                    <div class="stat-value" id="student-count">3</div>
+                    <div class="stat-value" id="student-count">0</div>
                 </div>
                 <div class="stat-card">
-                    <h3>Flags (Low Attendance)</h3>
-                    <div class="stat-value" id="flags-stat">1</div>
+                    <h3>Flags (Excluded Status)</h3>
+                    <div class="stat-value" id="flags-stat">0</div>
                 </div>
             </div>
 
