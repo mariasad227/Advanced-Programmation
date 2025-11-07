@@ -190,21 +190,37 @@ h2 { font-size: 1.5rem; }
 
 
 /* --- (Exercise 1) Table Styles --- */
+/* Wrapper for horizontal scrolling on narrow screens */
+.table-scroll-wrapper {
+    overflow-x: auto;
+}
+
 table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 1rem;
+    min-width: 800px; /* Ensure table is wide enough for all columns */
 }
 
 th, td {
     border-bottom: 1px solid var(--color-border);
-    padding: 12px 15px;
-    text-align: left;
+    padding: 8px 10px; /* Reduced padding for more columns */
+    text-align: center;
     vertical-align: middle;
+}
+
+th:first-child, td:first-child, th:nth-child(2), td:nth-child(2), td.message {
+    text-align: left; /* Keep name and message left-aligned */
 }
 
 thead {
     background-color: transparent;
+}
+
+/* Adjust padding for the second header row */
+thead tr.session-labels th {
+    padding: 5px 10px;
+    font-size: 0.85rem;
 }
 
 th {
@@ -225,6 +241,40 @@ input[type="checkbox"] {
     width: 16px;
     height: 16px;
     accent-color: var(--color-accent);
+}
+
+/* --- Exercise 1: Attendance Highlighting --- */
+/* Green: Good attendance (< 3 absences) */
+.attendance-green {
+    background-color: #e6ffee !important; /* Light green */
+    border-left: 5px solid #2ecc71;
+    transition: background-color 0.3s ease;
+}
+body.dark-mode .attendance-green {
+    background-color: #274c3d !important; 
+    border-left-color: #2ecc71;
+}
+
+/* Yellow: Warning (3-4 absences) */
+.attendance-yellow {
+    background-color: #fffbe6 !important; /* Light yellow */
+    border-left: 5px solid #f39c12;
+    transition: background-color 0.3s ease;
+}
+body.dark-mode .attendance-yellow {
+    background-color: #5d4d29 !important; 
+    border-left-color: #f39c12;
+}
+
+/* Red: Excluded (5+ absences) */
+.attendance-red {
+    background-color: #ffe6e6 !important; /* Light red */
+    border-left: 5px solid #e74c3c;
+    transition: background-color 0.3s ease;
+}
+body.dark-mode .attendance-red {
+    background-color: #4c2c2c !important; 
+    border-left-color: #e74c3c;
 }
 
 /* --- (Exercise 2) Form Styles --- */
@@ -257,6 +307,34 @@ input[type="checkbox"] {
     outline: none;
     box-shadow: 0 0 0 3px var(--color-accent-dark);
 }
+
+/* Highlight input on validation error */
+.form-group input.error {
+    border-color: var(--color-danger) !important;
+    box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.4) !important;
+}
+
+/* Validation Error Message Style (Animated) */
+.error-message {
+    color: var(--color-danger);
+    font-size: 0.85rem;
+    margin-top: 5px;
+    font-weight: 500;
+    height: 0;
+    overflow: hidden;
+    /* Animation for visibility */
+    opacity: 0;
+    transform: translateY(-5px);
+    transition: opacity 0.3s ease, transform 0.3s ease, height 0.3s ease;
+}
+
+.error-message.visible {
+    opacity: 1;
+    transform: translateY(0);
+    height: auto;
+    min-height: 1.25rem; /* Ensure space is reserved when visible */
+}
+
 
 /* --- NEW: 3D "Push" Button Styles --- */
 .btn {
