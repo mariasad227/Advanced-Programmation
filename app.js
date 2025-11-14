@@ -1,26 +1,28 @@
-// Wait for the DOM to be fully loaded
-document.addEventListener('DOMContentLoaded', () => {
+// Wait for the DOM to be fully loaded using jQuery
+$(document).ready(function() {
 
-    // --- Selectors for existing and new elements ---
-    const studentForm = document.getElementById('add-student-form');
-    const tableBody = document.getElementById('attendance-table-body');
-    const navLinks = document.querySelectorAll('.navbar a');
-    const logoutButton = document.getElementById('logout-confirm-btn');
+    // --- Selectors for existing and new elements (Converted to jQuery variables) ---
+    const $studentForm = $('#add-student-form');
+    const $tableBody = $('#attendance-table-body');
+    const $navLinks = $('.navbar a');
+    const $logoutButton = $('#logout-confirm-btn');
 
     // Personalization selectors
-    const themeToggle = document.getElementById('theme-toggle');
-    const colorSwatches = document.querySelectorAll('.color-swatches .swatch');
+    const $themeToggle = $('#theme-toggle');
+    const $colorSwatches = $('.color-swatches .swatch');
 
     // All cards for fade-in animation
-    const allCards = document.querySelectorAll('.card');
+    const $allCards = $('.card');
     
     // Report card value selectors
-    const studentCountEl = document.getElementById('student-count');
-    const attendanceStatEl = document.getElementById('attendance-stat');
-    const flagsStatEl = document.getElementById('flags-stat');
-    
-    // NEW: Download button selector
-    const downloadBtn = document.getElementById('download-report-btn');
+    const $studentCountEl = $('#student-count');
+    const $goodAttendanceEl = $('#good-attendance-count');
+    const $highParticipationEl = $('#high-participation-count');
+
+    // NEW: Download and Show Report button selectors
+    const $downloadBtn = $('#download-report-btn');
+    const $showReportBtn = $('#show-detailed-report-btn');
+    const $reportsSection = $('#reports');
 
 
     // -------------------------------------------------------------------
@@ -28,14 +30,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // -------------------------------------------------------------------
 
     function processAttendanceData() {
-        if (!tableBody) return;
+        if (!$tableBody.length) return;
 
         // Selects only student rows
-        const allRows = tableBody.querySelectorAll('tr[data-student-id]');
+        const $allRows = $tableBody.find('tr[data-student-id]');
 
-        allRows.forEach(row => {
+        $allRows.each(function() {
+            const $row = $(this);
             // Checkboxes are ordered: S1 to S6 (Attendance) then P1 to P6 (Participation)
-            const checkboxes = row.querySelectorAll('input[type="checkbox"]');
+            const $checkboxes = $row.find('input[type="checkbox"]');
             
             let absences = 0;
             let participations = 0;
@@ -44,25 +47,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // 1. Calculate Absences (S1-S6: first 6 checkboxes)
             for (let i = 0; i < totalSessions; i++) {
-                if (checkboxes[i] && !checkboxes[i].checked) {
+                if ($checkboxes.eq(i).length && !$checkboxes.eq(i).prop('checked')) {
                     absences++; // Absent = checkbox unchecked
                 }
             }
 
             // 2. Calculate Participations (P1-P6: next 6 checkboxes)
             for (let i = totalSessions; i < totalSessions + totalParticipationChecks; i++) {
-                if (checkboxes[i] && checkboxes[i].checked) {
+                if ($checkboxes.eq(i).length && $checkboxes.eq(i).prop('checked')) {
                     participations++; // Participated = checkbox checked
                 }
             }
 
             // 3. Update calculated cells
-            row.querySelector('.abs-count').textContent = absences;
-            row.querySelector('.par-count').textContent = participations;
-            const messageCell = row.querySelector('.message');
+            $row.find('.abs-count').text(absences);
+            $row.find('.par-count').text(participations);
+            const $messageCell = $row.find('.message');
             
             // 4. Apply highlighting and generate message
-            row.classList.remove('attendance-green', 'attendance-yellow', 'attendance-red');
+            // Reset classes, including the new 'high-participation' class
+            $row.removeClass('attendance-green attendance-yellow attendance-red high-participation');
             
             let message = '';
             let participationMessage = '';
@@ -70,6 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Set Participation Message
             if (participations >= 4) {
                 participationMessage = 'Excellent participation';
+                $row.addClass('high-participation'); // Add class for high participation count
             } else if (participations >= 2) {
                  participationMessage = 'Moderate participation';
             } else {
@@ -79,19 +84,19 @@ document.addEventListener('DOMContentLoaded', () => {
             // Set Attendance Status and Color
             if (absences < 3) {
                 // Green for fewer than 3 absences
-                row.classList.add('attendance-green');
+                $row.addClass('attendance-green');
                 message = `Good attendance – ${participationMessage}`;
             } else if (absences >= 3 && absences <= 4) {
                 // Yellow for 3 to 4 absences
-                row.classList.add('attendance-yellow');
+                $row.addClass('attendance-yellow');
                 message = `Warning – attendance low – ${participationMessage}`;
             } else { // 5 or more absences
                 // Red for 5 or more absences
-                row.classList.add('attendance-red');
+                $row.addClass('attendance-red');
                 message = `Excluded – too many absences – ${participationMessage}`;
             }
 
-            messageCell.textContent = message;
+            $messageCell.text(message);
         });
         
         // Update the top report cards
@@ -99,55 +104,69 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    // --- Function to update report cards (Adapted for new table structure) ---
+    // --- Function to update report cards (Modified for new metrics and bar chart) ---
     function updateReports() {
-        const allRows = tableBody.querySelectorAll('tr[data-student-id]');
-        const studentCount = allRows.length;
+        const $allRows = $tableBody.find('tr[data-student-id]');
+        const studentCount = $allRows.length;
         
-        // 1. Update Student Count
-        if (studentCountEl) {
-            studentCountEl.textContent = studentCount;
+        // 1. Update Total Student Count (Stat Card)
+        if ($studentCountEl.length) {
+            $studentCountEl.text(studentCount);
         }
 
-        // 2. Calculate Flags (Excluded status) and Overall Attendance
-        let flagsCount = 0;
-        let totalAbsences = 0;
-        const totalPossibleSessions = 6;
-        
-        for (const row of allRows) {
-            // Check for the 'Excluded' status (red row)
-            if (row.classList.contains('attendance-red')) {
-                flagsCount++;
-            }
-            // Sum up total absences from the calculated cell
-            const absCountEl = row.querySelector('.abs-count');
-            if (absCountEl) {
-                totalAbsences += parseInt(absCountEl.textContent) || 0;
-            }
-        }
+        // 2. Calculate New Metrics
+        let goodAttendanceCount = 0; // Students with < 3 absences (green rows)
+        let highParticipationCount = 0; // Students with >= 4 participations
 
-        // 3. Update Overall Attendance
-        const totalPossibleAttendance = studentCount * totalPossibleSessions;
-        const totalPresent = totalPossibleAttendance - totalAbsences;
-        
-        if (attendanceStatEl) {
-            if (totalPossibleAttendance > 0) {
-                const attendancePercent = Math.round((totalPresent / totalPossibleAttendance) * 100);
-                attendanceStatEl.textContent = `${attendancePercent}%`;
-            } else {
-                attendanceStatEl.textContent = 'N/A';
+        $allRows.each(function() {
+            const $row = $(this);
+            // Count students with Good Attendance (Green row)
+            if ($row.hasClass('attendance-green')) {
+                goodAttendanceCount++;
             }
-        }
+            // Count students with High Participation (new class)
+            if ($row.hasClass('high-participation')) {
+                highParticipationCount++;
+            }
+        });
+        
+        // 3. Calculate Percentages
+        const goodAttendancePercent = studentCount > 0 ? Math.round((goodAttendanceCount / studentCount) * 100) : 0;
+        const highParticipationPercent = studentCount > 0 ? Math.round((highParticipationCount / studentCount) * 100) : 0;
 
-        // 4. Update Flags
-        if (flagsStatEl) {
-            flagsStatEl.textContent = flagsCount;
+        // 4. Update Report Stats (Stat Cards)
+        if ($goodAttendanceEl.length) {
+            $goodAttendanceEl.text(goodAttendanceCount);
         }
+        
+        if ($highParticipationEl.length) {
+            $highParticipationEl.text(highParticipationCount);
+        }
+        
+        // 5. Update Bar Chart Statistics (NEW)
+        const $totalStudentsFinalEl = $('#total-students-final');
+        const $goodAttendanceBarEl = $('#good-attendance-bar');
+        const $goodAttendancePercentEl = $('#good-attendance-percent');
+        const $goodAttendanceCountBarEl = $('#good-attendance-count-bar');
+        const $highParticipationBarEl = $('#high-participation-bar');
+        const $highParticipationPercentEl = $('#high-participation-percent');
+        const $highParticipationCountBarEl = $('#high-participation-count-bar');
+
+        if ($totalStudentsFinalEl.length) $totalStudentsFinalEl.text(`${studentCount} Students`);
+        
+        if ($goodAttendanceBarEl.length) $goodAttendanceBarEl.css('width', `${goodAttendancePercent}%`);
+        if ($goodAttendancePercentEl.length) $goodAttendancePercentEl.text(`${goodAttendancePercent}%`);
+        if ($goodAttendanceCountBarEl.length) $goodAttendanceCountBarEl.text(goodAttendanceCount);
+
+        if ($highParticipationBarEl.length) $highParticipationBarEl.css('width', `${highParticipationPercent}%`);
+        if ($highParticipationPercentEl.length) $highParticipationPercentEl.text(`${highParticipationPercent}%`);
+        if ($highParticipationCountBarEl.length) $highParticipationCountBarEl.text(highParticipationCount);
     }
 
     
-    // --- NEW: Function to download the report (Adapted for new table structure) ---
+    // --- Function to download the report (Unchanged logic) ---
     function downloadReport() {
+        // ... downloadReport implementation using pure JS (or converted to jQuery, but keeping original file logic where possible) ...
         const table = document.querySelector('#attendance-list table');
         let csv = [];
 
@@ -197,6 +216,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // ----------------------------------------------------
     // --- EXERCISE 2: Form Validation Helper Functions ---
     // ----------------------------------------------------
+
+    // ... validateField and validateForm functions remain essentially the same, using pure JS DOM methods ...
 
     /**
      * Validates a single input field against a regex and displays an error message.
@@ -260,8 +281,8 @@ document.addEventListener('DOMContentLoaded', () => {
     
     /* * Interaction 1: Add New Student Form Submission (Updated with Validation)
      */
-    if (studentForm) {
-        studentForm.addEventListener('submit', (event) => {
+    if ($studentForm.length) {
+        $studentForm.on('submit', (event) => {
             event.preventDefault();
             
             const studentIdEl = document.getElementById('student-id');
@@ -271,7 +292,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // --- RUN VALIDATION ---
             if (!validateForm(studentIdEl, lastNameEl, firstNameEl, emailEl)) {
-                // Validation failed. The error messages are already displayed.
                 return;
             }
             
@@ -280,36 +300,35 @@ document.addEventListener('DOMContentLoaded', () => {
             const lastName = lastNameEl.value;
             const firstName = firstNameEl.value;
             
-            // Create a new table row with 12 unchecked boxes and the calculated columns
-            const newRow = document.createElement('tr');
-            newRow.setAttribute('data-student-id', studentId);
-            newRow.innerHTML = `
-                <td>${lastName.toUpperCase()}</td>
-                <td>${firstName}</td>
-                <td><input type="checkbox"></td>
-                <td><input type="checkbox"></td>
-                <td><input type="checkbox"></td>
-                <td><input type="checkbox"></td>
-                <td><input type="checkbox"></td>
-                <td><input type="checkbox"></td>
-                <td><input type="checkbox"></td>
-                <td><input type="checkbox"></td>
-                <td><input type="checkbox"></td>
-                <td><input type="checkbox"></td>
-                <td><input type="checkbox"></td>
-                <td><input type="checkbox"></td>
-                <td class="abs-count"></td>
-                <td class="par-count"></td>
-                <td class="message"></td>
+            // Create a new table row using jQuery append
+            const newRowHtml = `
+                <tr data-student-id="${studentId}">
+                    <td>${lastName.toUpperCase()}</td>
+                    <td>${firstName}</td>
+                    <td><input type="checkbox"></td>
+                    <td><input type="checkbox"></td>
+                    <td><input type="checkbox"></td>
+                    <td><input type="checkbox"></td>
+                    <td><input type="checkbox"></td>
+                    <td><input type="checkbox"></td>
+                    <td><input type="checkbox"></td>
+                    <td><input type="checkbox"></td>
+                    <td><input type="checkbox"></td>
+                    <td><input type="checkbox"></td>
+                    <td><input type="checkbox"></td>
+                    <td><input type="checkbox"></td>
+                    <td class="abs-count"></td>
+                    <td class="par-count"></td>
+                    <td class="message"></td>
+                </tr>
             `;
-            tableBody.appendChild(newRow);
-            studentForm.reset();
+            $tableBody.append(newRowHtml);
+            $studentForm[0].reset();
             
-            // Run processing for the new row and update reports
             processAttendanceData(); 
         });
         
-        // Add live validation feedback on input change/blur for better UX
+        // Add live validation feedback on input change/blur for better UX (Pure JS event listeners)
         const inputs = [
             document.getElementById('student-id'),
             document.getElementById('last-name'),
@@ -318,7 +337,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ];
         
         inputs.forEach(input => {
-            input.addEventListener('input', () => {
+            $(input).on('input', () => {
                 if (input.id === 'student-id') {
                     validateField(input, /^\d+$/, 'Student ID must contain only numbers.');
                 } else if (input.id === 'last-name' || input.id === 'first-name') {
@@ -332,7 +351,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     /*
-     * Interaction 2: Navbar Active Link Highlighting on Scroll (Unchanged)
+     * Interaction 2: Navbar Active Link Highlighting on Scroll (Unchanged, uses pure JS IntersectionObserver)
      */
     const navObserverOptions = {
         root: null, 
@@ -343,55 +362,48 @@ document.addEventListener('DOMContentLoaded', () => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 const id = entry.target.getAttribute('id');
-                navLinks.forEach(link => {
-                    link.classList.remove('active');
-                });
-                const activeLink = document.querySelector(`.navbar a[href="#${id}"]`);
-                if (activeLink) {
-                    activeLink.classList.add('active');
-                }
+                $navLinks.removeClass('active');
+                $(`.navbar a[href="#${id}"]`).addClass('active');
             }
         });
     }, navObserverOptions);
-    document.querySelectorAll('main section[id]').forEach(section => {
-        navObserver.observe(section);
+    $('main section[id]').each(function() {
+        navObserver.observe(this);
     });
 
     
     /*
-     * Interaction 3: Logout Button (Unchanged)
+     * Interaction 3: Logout Button (Converted to jQuery)
      */
-    if (logoutButton) {
-        logoutButton.addEventListener('click', () => {
+    if ($logoutButton.length) {
+        $logoutButton.on('click', () => {
             console.log('User logged out. (Simulation)');
         });
     }
     
     /*
-     * Interaction 4: Theme Toggler (Dark/Light Mode) (Unchanged)
+     * Interaction 4: Theme Toggler (Dark/Light Mode) (Converted to jQuery)
      */
-    if (themeToggle) {
-        themeToggle.addEventListener('change', () => {
-            document.body.classList.toggle('dark-mode');
+    if ($themeToggle.length) {
+        $themeToggle.on('change', () => {
+            $('body').toggleClass('dark-mode');
         });
     }
     
     /*
-     * Interaction 5: Accent Color Switcher (Unchanged)
+     * Interaction 5: Accent Color Switcher (Converted to jQuery)
      */
-    if (colorSwatches) {
-        colorSwatches.forEach(swatch => {
-            swatch.addEventListener('click', () => {
-                colorSwatches.forEach(s => s.classList.remove('active'));
-                swatch.classList.add('active');
-                const color = swatch.dataset.color;
-                document.body.setAttribute('data-theme', color);
-            });
+    if ($colorSwatches.length) {
+        $colorSwatches.on('click', function() {
+            $colorSwatches.removeClass('active');
+            $(this).addClass('active');
+            const color = $(this).data('color');
+            $('body').attr('data-theme', color);
         });
     }
     
     /*
-     * Interaction 6: Fade-in Cards on Scroll (Unchanged)
+     * Interaction 6: Fade-in Cards on Scroll (Unchanged, uses pure JS IntersectionObserver)
      */
     const cardObserverOptions = {
         root: null,
@@ -401,37 +413,79 @@ document.addEventListener('DOMContentLoaded', () => {
     const cardObserver = new IntersectionObserver((entries, observer) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
-                entry.target.classList.add('is-visible');
+                $(entry.target).addClass('is-visible');
                 observer.unobserve(entry.target);
             }
         });
     }, cardObserverOptions);
-    allCards.forEach(card => {
-        cardObserver.observe(card);
+    $allCards.each(function() {
+        cardObserver.observe(this);
     });
     
     
     /*
-     * Interaction 7: Update Reports on Checkbox Click (Updated to call processAttendanceData)
+     * Interaction 7: Update Reports on Checkbox Click (Converted to jQuery delegation)
      */
-    if (tableBody) {
-        tableBody.addEventListener('change', (event) => {
-            if (event.target.type === 'checkbox') {
-                processAttendanceData(); // Recalculate and recolor the rows
-            }
+    if ($tableBody.length) {
+        $tableBody.on('change', 'input[type="checkbox"]', () => {
+            processAttendanceData(); // Recalculate and recolor the rows
         });
     }
     
     
     /*
-     * NEW: Interaction 8: Download Report Button (Logic adapted for new table)
+     * Interaction 8: Download Report Button (Converted to jQuery)
      */
-    if (downloadBtn) {
-        downloadBtn.addEventListener('click', () => {
+    if ($downloadBtn.length) {
+        $downloadBtn.on('click', () => {
             downloadReport();
         });
     }
     
+    /*
+     * Interaction 9: Show Detailed Report Button (Converted to jQuery)
+     */
+    if ($showReportBtn.length) {
+        $showReportBtn.on('click', () => {
+            if ($reportsSection.length) {
+                // Show the reports section
+                $reportsSection.show();
+                // Scroll to the reports section
+                $('html, body').animate({
+                    scrollTop: $reportsSection.offset().top
+                }, 500);
+            }
+            updateReports(); 
+        });
+    }
+
+    // -------------------------------------------------------------------
+    // --- NEW JQUERY INTERACTIVITY FOR ATTENDANCE TABLE ---
+    // -------------------------------------------------------------------
+    
+    // 2. Highlight a row when the mouse hovers over it.
+    // 3. Remove the highlight when the mouse leaves.
+    $tableBody.on('mouseenter', 'tr[data-student-id]', function() {
+        $(this).addClass('row-highlight');
+    }).on('mouseleave', 'tr[data-student-id]', function() {
+        $(this).removeClass('row-highlight');
+    });
+
+    // 4. When a row is clicked, display a message box.
+    $tableBody.on('click', 'tr[data-student-id]', function() {
+        const $row = $(this);
+        // Get student details
+        const lastName = $row.find('td:nth-child(1)').text();
+        const firstName = $row.find('td:nth-child(2)').text();
+        // Get the absence count from the cell with class .abs-count
+        const absences = $row.find('.abs-count').text();
+        
+        const fullName = `${firstName.trim()} ${lastName.trim()}`;
+        const message = `${fullName} has recorded ${absences} absences.`;
+        
+        alert(message);
+    });
+
 
     // --- Initial Run: Calculate and display attendance status on load ---
     processAttendanceData();
