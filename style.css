@@ -277,6 +277,16 @@ body.dark-mode .attendance-red {
     border-left-color: #e74c3c;
 }
 
+/* NEW: High Participation Style (for students with 4+ participations) */
+.high-participation td.par-count {
+    background-color: #d1f7d5; /* Very light green background for the cell */
+    font-weight: 600;
+}
+body.dark-mode .high-participation td.par-count {
+    background-color: #1f3724; 
+}
+
+
 /* --- (Exercise 2) Form Styles --- */
 .form-group {
     margin-bottom: 1.25rem;
@@ -336,7 +346,7 @@ body.dark-mode .attendance-red {
 }
 
 
-/* --- NEW: 3D "Push" Button Styles --- */
+/* --- NEW: 3D "Push" Button Styles (Added in previous modification) --- */
 .btn {
     display: inline-block;
     padding: 12px 20px;
@@ -498,3 +508,95 @@ footer {
     margin-top: 2rem;
     transition: background-color 0.3s ease, color 0.3s ease;
 }
+
+/* --- NEW: Statistical Bar Chart Styles --- */
+#report-bars {
+    margin: 2rem 0;
+    max-width: 600px;
+}
+
+.report-bar-item {
+    margin-bottom: 1.5rem;
+}
+
+.bar-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-text);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+.bar-title span {
+    font-weight: 700;
+}
+
+.bar-container {
+    height: 12px;
+    background-color: var(--color-border);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.bar-fill {
+    height: 100%;
+    transition: width 0.5s ease-out;
+    border-radius: 6px;
+}
+
+.report-bar-item.good-attendance .bar-fill {
+    background-color: #2ecc71; /* Green */
+}
+
+.report-bar-item.high-participation .bar-fill {
+    background-color: #3498db; /* Blue/Accent */
+}
+
+.report-bar-item .bar-value {
+    display: block;
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--color-text-light);
+}
+
+.report-bar-item.total-students {
+    border-top: 1px solid var(--color-border);
+    padding-top: 1.5rem;
+}
+
+.report-bar-item.total-students .bar-value {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--color-accent);
+    text-align: center;
+}
+/* ... existing styles ... */
+
+/* --- Exercise 1: Attendance Highlighting --- */
+/* ... existing attendance-green/yellow/red styles ... */
+
+/* NEW: High Participation Style (for students with 4+ participations) */
+.high-participation td.par-count {
+    background-color: #d1f7d5; /* Very light green background for the cell */
+    font-weight: 600;
+}
+body.dark-mode .high-participation td.par-count {
+    background-color: #1f3724; 
+}
+
+/* NEW: jQuery Hover Highlight Style */
+.row-highlight {
+    background-color: var(--color-accent) !important; 
+    color: var(--color-card) !important;
+    transition: background-color 0.1s ease, transform 0.1s ease, box-shadow 0.1s ease;
+    cursor: pointer;
+    transform: scale(1.005);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.row-highlight td {
+    color: var(--color-card) !important; /* Ensure text inside is white */
+}
+
+/* ... existing styles ... */
