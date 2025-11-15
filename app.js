@@ -23,6 +23,10 @@ $(document).ready(function() {
     const $downloadBtn = $('#download-report-btn');
     const $showReportBtn = $('#show-detailed-report-btn');
     const $reportsSection = $('#reports');
+    
+    // NEW: Excellent Student Highlighting selectors
+    const $highlightExcellentBtn = $('#highlight-excellent-btn');
+    const $resetColorsBtn = $('#reset-colors-btn');
 
 
     // -------------------------------------------------------------------
@@ -181,6 +185,9 @@ $(document).ready(function() {
 
         // Get Body Rows (17 columns expected)
         table.querySelectorAll('tbody tr').forEach(row => {
+            // Skip the dynamically injected notification rows
+            if ($(row).hasClass('row-notification-tr')) return; 
+
             const rowData = [];
             
             row.querySelectorAll('td').forEach(cell => {
@@ -216,8 +223,6 @@ $(document).ready(function() {
     // ----------------------------------------------------
     // --- EXERCISE 2: Form Validation Helper Functions ---
     // ----------------------------------------------------
-
-    // ... validateField and validateForm functions remain essentially the same, using pure JS DOM methods ...
 
     /**
      * Validates a single input field against a regex and displays an error message.
@@ -471,21 +476,116 @@ $(document).ready(function() {
         $(this).removeClass('row-highlight');
     });
 
-    // 4. When a row is clicked, display a message box.
+    // 4. When a row is clicked, display a message box. (UPDATED TO ROW NOTIFICATION)
     $tableBody.on('click', 'tr[data-student-id]', function() {
-        const $row = $(this);
+        const $clickedRow = $(this);
+        
+        // Hide/remove any existing notification row first
+        $tableBody.find('.row-notification-tr').remove();
+
         // Get student details
-        const lastName = $row.find('td:nth-child(1)').text();
-        const firstName = $row.find('td:nth-child(2)').text();
+        const lastName = $clickedRow.find('td:nth-child(1)').text();
+        const firstName = $clickedRow.find('td:nth-child(2)').text();
         // Get the absence count from the cell with class .abs-count
-        const absences = $row.find('.abs-count').text();
+        const absences = $clickedRow.find('.abs-count').text();
         
         const fullName = `${firstName.trim()} ${lastName.trim()}`;
         const message = `${fullName} has recorded ${absences} absences.`;
         
-        alert(message);
+        // Count number of columns in the table (17 columns total)
+        const colspanCount = $clickedRow.find('td').length;
+
+        // Build the HTML for the notification row
+        const notificationHtml = `
+            <tr class="row-notification-tr">
+                <td colspan="${colspanCount}">
+                    <div class="notification-content">
+                        <span>
+                            <strong style="color: var(--color-accent);">${firstName}'s Summary:</strong> ${message}
+                        </span>
+                        <span class="close-btn" title="Close Notification">×</span>
+                    </div>
+                </td>
+            </tr>
+        `;
+
+        // Insert the new row immediately after the clicked row
+        const $newRow = $(notificationHtml).insertAfter($clickedRow);
+        
+        // Animate the notification content for a modern look (fade-in)
+        $newRow.find('.notification-content').animate({ opacity: 1 }, 300);
+
+        // Add handler to close button
+        $newRow.find('.close-btn').on('click', function(e) {
+            e.stopPropagation(); // Prevent row click from firing again
+            $newRow.fadeOut(300, function() {
+                $(this).remove();
+            });
+        });
     });
 
+
+    // -------------------------------------------------------------------
+    // --- NEW JQUERY INTERACTIVITY FOR EXCELLENT STUDENT HIGHLIGHT ---
+    // -------------------------------------------------------------------
+    
+    /**
+     * Finds rows with good attendance (< 3 absences) and applies a blinking animation.
+     */
+    function highlightExcellentStudents() {
+        // Excellent students are those with the 'attendance-green' class (< 3 absences)
+        const $excellentRows = $tableBody.find('tr[data-student-id].attendance-green');
+        
+        // Stop any running animations and ensure they are fully visible (opacity: 1)
+        $excellentRows.stop(true, true).css('opacity', 1);
+
+        // Add the temporary highlight class to set the base animated color
+        $excellentRows.addClass('highlight-excellent-student');
+
+        // Animation: Flashing effect using opacity, looped 3 times
+        for (let i = 0; i < 3; i++) {
+             $excellentRows
+                .animate({ opacity: 0.5 }, 400) // Fade out slightly
+                .animate({ opacity: 1.0 }, 400); // Fade back in
+        }
+        
+        // After the animation chain finishes, ensure the final state is opaque (1.0).
+        $excellentRows.promise().done(function() {
+            $(this).css('opacity', 1.0);
+        });
+    }
+
+    /**
+     * Resets the highlighting, stopping all animations and restoring original colors.
+     */
+    function resetColors() {
+        const $allRows = $tableBody.find('tr[data-student-id]');
+        
+        // 1. Stop all current animations immediately
+        $allRows.stop(true, true); 
+        
+        // 2. Reset opacity and remove the temporary class
+        $allRows.css('opacity', 1.0);
+        $allRows.removeClass('highlight-excellent-student');
+    }
+
+    /*
+     * Interaction 10: Highlight Excellent Students Button
+     */
+    if ($highlightExcellentBtn.length) {
+        $highlightExcellentBtn.on('click', () => {
+            highlightExcellentStudents();
+        });
+    }
+
+    /*
+     * Interaction 11: Reset Colors Button
+     */
+    if ($resetColorsBtn.length) {
+        $resetColorsBtn.on('click', () => {
+            resetColors();
+        });
+    }
 
     // --- Initial Run: Calculate and display attendance status on load ---
     processAttendanceData();
