@@ -571,10 +571,39 @@ footer {
     color: var(--color-accent);
     text-align: center;
 }
-/* ... existing styles ... */
-
 /* --- Exercise 1: Attendance Highlighting --- */
-/* ... existing attendance-green/yellow/red styles ... */
+/* Green: Good attendance (< 3 absences) */
+.attendance-green {
+    background-color: #e6ffee !important; /* Light green */
+    border-left: 5px solid #2ecc71;
+    transition: background-color 0.3s ease;
+}
+body.dark-mode .attendance-green {
+    background-color: #274c3d !important; 
+    border-left-color: #2ecc71;
+}
+
+/* Yellow: Warning (3-4 absences) */
+.attendance-yellow {
+    background-color: #fffbe6 !important; /* Light yellow */
+    border-left: 5px solid #f39c12;
+    transition: background-color 0.3s ease;
+}
+body.dark-mode .attendance-yellow {
+    background-color: #5d4d29 !important; 
+    border-left-color: #f39c12;
+}
+
+/* Red: Excluded (5+ absences) */
+.attendance-red {
+    background-color: #ffe6e6 !important; /* Light red */
+    border-left: 5px solid #e74c3c;
+    transition: background-color 0.3s ease;
+}
+body.dark-mode .attendance-red {
+    background-color: #4c2c2c !important; 
+    border-left-color: #e74c3c;
+}
 
 /* NEW: High Participation Style (for students with 4+ participations) */
 .high-participation td.par-count {
@@ -585,7 +614,20 @@ body.dark-mode .high-participation td.par-count {
     background-color: #1f3724; 
 }
 
-/* NEW: jQuery Hover Highlight Style */
+/* --- NEW: Highlight for Animation Target --- */
+/* Temporary class to force a background color for the animation blink */
+.highlight-excellent-student {
+    background-color: #34d98a !important; /* Bright light green/cyan */
+    border-left: 5px solid #2ecc71; /* Keep the green border */
+    /* Ensure the color change is immediate when the class is added, then let opacity animate */
+    transition: background-color 0s !important; 
+}
+body.dark-mode .highlight-excellent-student {
+    background-color: #3a5e50 !important; /* Darker variant */
+    border-left-color: #2ecc71;
+}
+
+/* NEW: jQuery Hover Highlight Style (Original) */
 .row-highlight {
     background-color: var(--color-accent) !important; 
     color: var(--color-card) !important;
@@ -599,4 +641,46 @@ body.dark-mode .high-participation td.par-count {
     color: var(--color-card) !important; /* Ensure text inside is white */
 }
 
-/* ... existing styles ... */
+/* ------------------------------------------- */
+/* --- NEW: Row Notification Styles (Modern Alert) --- */
+/* ------------------------------------------- */
+tr.row-notification-tr td {
+    background-color: var(--color-card);
+    border-top: none;
+    padding: 0; /* Remove padding from TD container */
+}
+
+tr.row-notification-tr .notification-content {
+    padding: 10px 15px; /* Add padding to inner div for visual space */
+    text-align: left;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--color-text);
+    border-left: 5px solid var(--color-accent); /* Accent bar */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    opacity: 0; /* Hidden by default, animated by JS */
+    /* Use highlight-bg color for the notification background */
+    background-color: var(--color-highlight-bg); 
+    /* Ensures the bottom border of the row *above* is still visible */
+    border-bottom: 1px solid var(--color-border); 
+}
+
+body.dark-mode tr.row-notification-tr .notification-content {
+    background-color: var(--color-card);
+}
+
+tr.row-notification-tr .close-btn {
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 1.2rem;
+    padding: 0 5px;
+    line-height: 1;
+    color: var(--color-secondary);
+    transition: color 0.2s;
+}
+
+tr.row-notification-tr .close-btn:hover {
+    color: var(--color-danger);
+}
